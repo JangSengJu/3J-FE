@@ -188,3 +188,53 @@ button { font-family: inherit; }
 .c-switch{margin:24px 0 0;text-align:center;font-size:14px;color:var(--muted)}
 
 .c-authcard .c-welcome{margin:0 0 32px;font-size:32px;line-height:40px;font-weight:800;letter-spacing:-0.02em;color:var(--ink);text-align:left}
+
+/* 대시보드: 카드형 레이아웃 */
+.c-page.dash{--d-bg:#f2f3f1;background:var(--d-bg)}
+.dash .c-nav{background:transparent;border-bottom:0}
+.d-wrap{max-width:1240px;margin:0 auto;padding:24px 32px 56px}
+.d-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.d-head h1{margin:0;font-size:40px;line-height:48px;font-weight:800;letter-spacing:-0.02em}
+.d-head h1 span{font-weight:400;color:#8a8a82}
+.d-pill{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:14px;font-weight:700;padding:12px 22px;border-radius:999px;border:0;background:var(--surface);color:var(--ink);cursor:pointer}
+.d-pill b{font-size:18px;line-height:1}
+.d-pill.solid{background:var(--accent);color:var(--on-accent)}
+.d-pill.solid:hover{background:var(--accent-hover)}
+.d-pill.full{width:100%;justify-content:center;padding:15px 22px;font-size:15px}
+.d-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.d-card{background:var(--surface);border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:18px}
+.d-cardhead{display:flex;justify-content:space-between;align-items:flex-start}
+.d-cardhead h2{margin:0;font-size:18px;line-height:26px;font-weight:700}
+.d-cardhead p{margin:0;font-size:13px;color:#8a8a82}
+.d-hero{background:var(--accent);color:var(--on-accent)}
+.d-hero .d-cardhead p{color:rgba(255,255,255,.7)}
+.d-big{font-size:48px;line-height:56px;font-weight:800;letter-spacing:-0.02em}
+.d-foot{display:flex;justify-content:space-between;font-size:14px;opacity:.85;margin-top:auto}
+.d-badge{font-size:12px;font-weight:700;border-radius:999px;padding:4px 12px}
+.d-badge.light{background:rgba(255,255,255,.2);color:var(--on-accent)}
+.d-inline{display:flex;gap:10px}
+.d-input{flex:1;min-width:0;font:inherit;font-size:15px;padding:13px 16px;border:0;border-radius:16px;background:var(--d-bg);color:var(--ink)}
+.d-input:focus{outline:2px solid var(--accent)}
+.d-area{width:100%;resize:vertical;flex:1}
+.d-meter{height:10px;border-radius:999px;background:var(--d-bg);overflow:hidden}
+.d-meter i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.d-note{margin:0;font-size:13px;color:#8a8a82}
+.d-wide{grid-column:span 2}
+.d-table{width:100%;border-collapse:collapse;font-size:14px}
+.d-table th{text-align:left;font-weight:500;color:#8a8a82;padding:8px 12px 12px}
+.d-table td{padding:14px 12px;border-top:1px solid var(--line)}
+.d-table tr.empty td{text-align:center;color:#8a8a82;padding:36px 12px;background:var(--d-bg);border-radius:16px;border-top:0}
+.d-sum{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--line);font-size:14px;color:#8a8a82}
+.d-sum b{font-size:28px;color:var(--ink);font-weight:800}
+.d-cta{justify-content:space-between}
+.d-desc{margin:0;font-size:14px;line-height:22px;color:var(--muted)}
+@media (max-width:960px){.d-grid{grid-template-columns:1fr}.d-wide{grid-column:auto}.d-head h1{font-size:28px;line-height:36px}.d-wrap{padding:16px}}
+
+/* 대시보드 카드 그림자 */
+.d-card{box-shadow:0 1px 2px rgba(17,17,17,.04),0 8px 24px -8px rgba(17,17,17,.10);transition:box-shadow .2s}
+.d-card:hover{box-shadow:0 0 0 2px rgba(53,94,59,.35),0 12px 28px -8px rgba(17,17,17,.16)}
+.d-hero{box-shadow:0 1px 2px rgba(17,17,17,.06),0 12px 28px -8px rgba(53,94,59,.45)}
+.d-hero:hover{box-shadow:0 0 0 2px rgba(53,94,59,.35),0 16px 32px -8px rgba(53,94,59,.55)}
+.d-pill{box-shadow:0 1px 2px rgba(17,17,17,.06),0 4px 12px -4px rgba(17,17,17,.12)}
+.d-pill.solid{box-shadow:0 4px 12px -4px rgba(53,94,59,.55)}
+.d-input{box-shadow:inset 0 1px 2px rgba(17,17,17,.06)}
