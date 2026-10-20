@@ -166,3 +166,17 @@ button { font-family: inherit; }
 .c-side .c-authcard form{margin-top:28px;gap:24px}
 .c-authcard .c-label{margin-bottom:8px}
 .c-side .c-authcard .c-btn{margin-top:12px}
+
+/* 로그인 폼: 심플 라운드 스타일 */
+.c-authcard{background:transparent;border:0;box-shadow:none;padding:0;text-align:left;max-width:400px}
+.c-authcard .c-seg{margin-bottom:28px}
+.c-side .c-authcard form{margin-top:0;gap:20px}
+.c-authcard .c-label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.c-authcard .c-input{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:0 1px 2px rgba(17,17,17,.04)}
+.c-authcard .c-input::placeholder{color:var(--line-strong)}
+.c-authrow{display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.c-check{display:flex;align-items:center;gap:10px;font-weight:500;cursor:pointer}
+.c-check input{width:18px;height:18px;margin:0;accent-color:var(--accent);cursor:pointer}
+.c-link{font:inherit;font-weight:600;color:var(--accent);background:none;border:0;padding:0;cursor:pointer}
+.c-link:hover{color:var(--accent-hover);text-decoration:underline}
+.c-side .c-authcard .c-btn.primary{width:100%;margin-top:4px;padding:16px 18px;border-radius:12px;font-size:16px}

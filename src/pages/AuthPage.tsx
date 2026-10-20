@@ -51,16 +51,23 @@ export default function AuthPage({ onAuth }: Props) {
             회원가입
           </button>
         </div>
-        <h1 className="c-title">{label}</h1>
         <form onSubmit={submit}>
           <div>
             <label className="c-label" htmlFor="email">이메일</label>
-            <input id="email" className="c-input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input id="email" className="c-input" type="email" placeholder="이메일을 입력하세요" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
             <label className="c-label" htmlFor="password">비밀번호</label>
-            <input id="password" className="c-input" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <input id="password" className="c-input" type="password" placeholder="비밀번호를 입력하세요" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
+          {!signUp && (
+            <div className="c-authrow">
+              <label className="c-check">
+                <input type="checkbox" /> 30일 동안 로그인 유지
+              </label>
+              <button type="button" className="c-link">비밀번호 찾기</button>
+            </div>
+          )}
           <button type="submit" className="c-btn primary">{label}</button>
         </form>
       </div>
