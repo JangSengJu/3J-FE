@@ -43,6 +43,7 @@ export default function AuthPage({ onAuth }: Props) {
       <Intro />
       <div className="c-side">
       <div className="c-authcard">
+        <h1 className="c-welcome">{signUp ? 'Create an account' : 'Welcome back'}</h1>
         <form onSubmit={submit}>
           <div>
             <label className="c-label" htmlFor="email">이메일</label>
