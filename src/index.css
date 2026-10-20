@@ -180,3 +180,9 @@ button { font-family: inherit; }
 .c-link{font:inherit;font-weight:600;color:var(--accent);background:none;border:0;padding:0;cursor:pointer}
 .c-link:hover{color:var(--accent-hover);text-decoration:underline}
 .c-side .c-authcard .c-btn.primary{width:100%;margin-top:4px;padding:16px 18px;border-radius:12px;font-size:16px}
+
+/* 밑줄형 입력창 + 하단 전환 링크 */
+.c-authcard .c-input{background:transparent;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;box-shadow:none;padding:12px 2px}
+.c-authcard .c-input:hover{border-color:var(--ink)}
+.c-authcard .c-input:focus{background:transparent;border-color:var(--accent);box-shadow:0 1px 0 var(--accent)}
+.c-switch{margin:24px 0 0;text-align:center;font-size:14px;color:var(--muted)}

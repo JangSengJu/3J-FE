@@ -43,14 +43,6 @@ export default function AuthPage({ onAuth }: Props) {
       <Intro />
       <div className="c-side">
       <div className="c-authcard">
-        <div className="c-seg">
-          <button type="button" className={signUp ? '' : 'on'} onClick={() => setSignUp(false)}>
-            로그인
-          </button>
-          <button type="button" className={signUp ? 'on' : ''} onClick={() => setSignUp(true)}>
-            회원가입
-          </button>
-        </div>
         <form onSubmit={submit}>
           <div>
             <label className="c-label" htmlFor="email">이메일</label>
@@ -70,6 +62,12 @@ export default function AuthPage({ onAuth }: Props) {
           )}
           <button type="submit" className="c-btn primary">{label}</button>
         </form>
+        <p className="c-switch">
+          {signUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          <button type="button" className="c-link" onClick={() => setSignUp(!signUp)}>
+            {signUp ? 'Sign in' : 'Sign up'}
+          </button>
+        </p>
       </div>
       </div>
     </div>
