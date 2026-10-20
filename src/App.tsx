@@ -11,10 +11,10 @@ function App() {
   if (!userId) return <AuthPage onAuth={setUserId} />
 
   return (
-    <div className="c-page">
-      <Nav tab={tab} onTab={setTab} userId={userId} onLogout={() => setUserId(null)} />]
+    <div className={`c-page${tab === 'dashboard' ? ' dash' : ''}`}>
+      <Nav tab={tab} onTab={setTab} userId={userId} onLogout={() => setUserId(null)} />
       {tab === 'dashboard' ? (
-        <ResourceDashboard userId={email} onAnalyze={() => setTab('recommend')} />
+        <ResourceDashboard userId={userId} onAnalyze={() => setTab('recommend')} />
       ) : (
         <RecommendPage />
       )}
