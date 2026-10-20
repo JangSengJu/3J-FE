@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 
 interface Props {
-  onAuth: (email: string) => void
+  onAuth: (userId: string) => void
 }
 
 function Intro() {
@@ -29,13 +29,13 @@ function Intro() {
 
 export default function AuthPage({ onAuth }: Props) {
   const [signUp, setSignUp] = useState(false)
-  const [email, setEmail] = useState('')
+  const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
   const label = signUp ? '회원가입' : '로그인'
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    onAuth(email)
+    onAuth(userId)
   }
 
   return (
@@ -43,26 +43,32 @@ export default function AuthPage({ onAuth }: Props) {
       <Intro />
       <div className="c-side">
       <div className="c-authcard">
-        <div className="c-seg">
-          <button type="button" className={signUp ? '' : 'on'} onClick={() => setSignUp(false)}>
-            로그인
-          </button>
-          <button type="button" className={signUp ? 'on' : ''} onClick={() => setSignUp(true)}>
-            회원가입
-          </button>
-        </div>
-        <h1 className="c-title">{label}</h1>
+        <h1 className="c-welcome">{signUp ? 'Create an account' : 'Welcome back'}</h1>
         <form onSubmit={submit}>
           <div>
-            <label className="c-label" htmlFor="email">이메일</label>
-            <input id="email" className="c-input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <label className="c-label" htmlFor="userId">아이디</label>
+            <input id="userId" className="c-input" type="text" autoComplete="username" placeholder="아이디를 입력하세요" required value={userId} onChange={(e) => setUserId(e.target.value)} />
           </div>
           <div>
             <label className="c-label" htmlFor="password">비밀번호</label>
-            <input id="password" className="c-input" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <input id="password" className="c-input" type="password" placeholder="비밀번호를 입력하세요" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
+          {!signUp && (
+            <div className="c-authrow">
+              <label className="c-check">
+                <input type="checkbox" /> 30일 동안 로그인 유지
+              </label>
+              <button type="button" className="c-link">비밀번호 찾기</button>
+            </div>
+          )}
           <button type="submit" className="c-btn primary">{label}</button>
         </form>
+        <p className="c-switch">
+          {signUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          <button type="button" className="c-link" onClick={() => setSignUp(!signUp)}>
+            {signUp ? 'Sign in' : 'Sign up'}
+          </button>
+        </p>
       </div>
       </div>
     </div>
