@@ -12,9 +12,9 @@ function App() {
 
   return (
     <div className="c-page">
-      <Nav tab={tab} onTab={setTab} userId={userId} onLogout={() => setUserId(null)} />
+      <Nav tab={tab} onTab={setTab} userId={userId} onLogout={() => setUserId(null)} />]
       {tab === 'dashboard' ? (
-        <ResourceDashboard onAnalyze={() => setTab('recommend')} />
+        <ResourceDashboard userId={email} onAnalyze={() => setTab('recommend')} />
       ) : (
         <RecommendPage />
       )}

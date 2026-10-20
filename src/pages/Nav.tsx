@@ -12,10 +12,10 @@ export default function Nav({ tab, onTab, userId, onLogout }: Props) {
     <nav className="c-nav">
       <div className="c-tabs">
         <button type="button" className={`c-tab${tab === 'dashboard' ? ' on' : ''}`} onClick={() => onTab('dashboard')}>
-          대시보드
+          Dashboard
         </button>
         <button type="button" className={`c-tab${tab === 'recommend' ? ' on' : ''}`} onClick={() => onTab('recommend')}>
-          절감 추천
+          Savings
         </button>
       </div>
       <div className="c-user">
