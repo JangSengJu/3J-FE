@@ -5,14 +5,14 @@ import RecommendPage from './pages/RecommendPage'
 import Nav, { type Tab } from './pages/Nav'
 
 function App() {
-  const [email, setEmail] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('dashboard')
 
-  if (!email) return <AuthPage onAuth={setEmail} />
+  if (!userId) return <AuthPage onAuth={setUserId} />
 
   return (
     <div className="c-page">
-      <Nav tab={tab} onTab={setTab} email={email} onLogout={() => setEmail(null)} />
+      <Nav tab={tab} onTab={setTab} userId={userId} onLogout={() => setUserId(null)} />
       {tab === 'dashboard' ? (
         <ResourceDashboard onAnalyze={() => setTab('recommend')} />
       ) : (
