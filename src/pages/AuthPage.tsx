@@ -33,9 +33,21 @@ export default function AuthPage({ onAuth }: Props) {
   const [password, setPassword] = useState('')
   const label = signUp ? '회원가입' : '로그인'
 
+  const [error, setError] = useState('')
+
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    onAuth(userId)
+    const id = userId.trim().toLowerCase()
+    if (id.length < 4 || id.length > 120) return setError('아이디는 4~120자로 입력하세요')
+    if (password.length < 8 || password.length > 200) return setError('비밀번호는 8~200자로 입력하세요')
+    setError('')
+    // 회원가입 성공 시 로그인 화면으로 이동 (백엔드 연동 전까지 로컬 처리)
+    if (signUp) {
+      setSignUp(false)
+      setPassword('')
+      return
+    }
+    onAuth(id)
   }
 
   return (
@@ -61,11 +73,12 @@ export default function AuthPage({ onAuth }: Props) {
               <button type="button" className="c-link">비밀번호 찾기</button>
             </div>
           )}
+          {error && <p className="c-error" role="alert">{error}</p>}
           <button type="submit" className="c-btn primary">{label}</button>
         </form>
         <p className="c-switch">
           {signUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button type="button" className="c-link" onClick={() => setSignUp(!signUp)}>
+          <button type="button" className="c-link" onClick={() => { setSignUp(!signUp); setError('') }}>
             {signUp ? 'Sign in' : 'Sign up'}
           </button>
         </p>
