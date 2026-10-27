@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import {
   CATALOG, DEFAULT_QTY, HOUR_PRESETS, NEED_OPTIONS, RESOURCE_TYPES, UNIT_LABEL, USAGE_OPTIONS,
   autoName, calcCost, isHourly, qtyLabel, uniqueName,
@@ -12,6 +12,58 @@ interface Props {
 }
 
 const fmt = (n: number) => `$${n.toFixed(2)}`
+
+type CatalogOption = (typeof CATALOG)[ResourceType][number]
+
+interface BuildArgs {
+  type: ResourceType
+  opt: CatalogOption
+  qty: number
+  cost: number
+  usage: string
+  need: string
+  name: string
+  takenNames: string[]
+}
+
+function buildResource({ type, opt, qty, cost, usage, need, name, takenNames }: BuildArgs): Resource {
+  const hourly = isHourly(opt.unit)
+  const typed = name.trim().slice(0, 120)
+  const finalName = uniqueName(typed || autoName(type, opt.option), takenNames)
+  return {
+    id: crypto.randomUUID(),
+    name: finalName,
+    type,
+    unit: opt.unit,
+    cost,
+    usage,
+    need,
+    meta: `${type} · ${opt.option} · ${hourly ? `${qty} 시간` : qtyLabel(opt.unit, qty)}`,
+    option: opt.option,
+    qty,
+  }
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="d-field">
+      <span>{label}</span>
+      {children}
+    </label>
+  )
+}
+
+function StringSelect({ value, options, onChange }: {
+  value: string
+  options: readonly string[]
+  onChange: (v: string) => void
+}) {
+  return (
+    <select className="d-input" value={value} onChange={(e) => onChange(e.target.value)}>
+      {options.map((o) => <option key={o}>{o}</option>)}
+    </select>
+  )
+}
 
 export default function AddResourceModal({ takenNames, onAdd, onClose }: Props) {
   const [type, setType] = useState<ResourceType>('EC2')
@@ -45,20 +97,7 @@ export default function AddResourceModal({ takenNames, onAdd, onClose }: Props) 
   const submit = (e: FormEvent) => {
     e.preventDefault()
     if (!valid) return setError('수량을 0 이상의 숫자로 입력하세요')
-    const typed = name.trim().slice(0, 120)
-    const finalName = uniqueName(typed || base, takenNames)
-    onAdd({
-      id: crypto.randomUUID(),
-      name: finalName,
-      type,
-      unit: opt.unit,
-      cost,
-      usage,
-      need,
-      meta: `${type} · ${opt.option} · ${hourly ? `${qty} 시간` : qtyLabel(opt.unit, qty)}`,
-      option: opt.option,
-      qty,
-    })
+    onAdd(buildResource({ type, opt, qty, cost, usage, need, name, takenNames }))
   }
 
   return (
@@ -73,15 +112,13 @@ export default function AddResourceModal({ takenNames, onAdd, onClose }: Props) 
         </div>
 
         <div className="d-fields">
-          <label className="d-field">
-            <span>유형</span>
+          <Field label="유형">
             <select className="d-input" value={type} onChange={(e) => changeType(e.target.value as ResourceType)}>
               {RESOURCE_TYPES.map((t) => <option key={t}>{t}</option>)}
             </select>
-          </label>
+          </Field>
 
-          <label className="d-field">
-            <span>옵션</span>
+          <Field label="옵션">
             <select className="d-input" value={optionIdx} onChange={(e) => changeOption(Number(e.target.value))}>
               {options.map((o, i) => (
                 <option key={o.option} value={i}>
@@ -89,43 +126,34 @@ export default function AddResourceModal({ takenNames, onAdd, onClose }: Props) 
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
           {hourly ? (
-            <label className="d-field">
-              <span>사용 시간</span>
+            <Field label="사용 시간">
               <select className="d-input" value={hours} onChange={(e) => setHours(Number(e.target.value))}>
                 {HOUR_PRESETS.map((h) => <option key={h.label} value={h.hours}>{h.label} ({h.hours}h)</option>)}
               </select>
-            </label>
+            </Field>
           ) : (
-            <label className="d-field">
-              <span>수량 ({UNIT_LABEL[opt.unit]})</span>
+            <Field label={`수량 (${UNIT_LABEL[opt.unit]})`}>
               <input
                 className="d-input"
                 inputMode="decimal"
                 value={qtyText}
                 onChange={(e) => setQtyText(e.target.value)}
               />
-            </label>
+            </Field>
           )}
 
-          <label className="d-field">
-            <span>사용률</span>
-            <select className="d-input" value={usage} onChange={(e) => setUsage(e.target.value)}>
-              {USAGE_OPTIONS.map((u) => <option key={u}>{u}</option>)}
-            </select>
-          </label>
+          <Field label="사용률">
+            <StringSelect value={usage} options={USAGE_OPTIONS} onChange={setUsage} />
+          </Field>
 
-          <label className="d-field">
-            <span>필요도</span>
-            <select className="d-input" value={need} onChange={(e) => setNeed(e.target.value)}>
-              {NEED_OPTIONS.map((n) => <option key={n}>{n}</option>)}
-            </select>
-          </label>
+          <Field label="필요도">
+            <StringSelect value={need} options={NEED_OPTIONS} onChange={setNeed} />
+          </Field>
 
-          <label className="d-field">
-            <span>이름 (선택)</span>
+          <Field label="이름 (선택)">
             <input
               className="d-input"
               maxLength={120}
@@ -133,7 +161,7 @@ export default function AddResourceModal({ takenNames, onAdd, onClose }: Props) 
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </label>
+          </Field>
         </div>
 
         {error && <p className="d-error">{error}</p>}

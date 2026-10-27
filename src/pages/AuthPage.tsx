@@ -1,8 +1,13 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 
 interface Props {
   onAuth: (userId: string) => void
 }
+
+const ID_MIN = 4
+const ID_MAX = 120
+const PW_MIN = 8
+const PW_MAX = 200 
 
 function Intro() {
   return (
@@ -27,19 +32,33 @@ function Intro() {
   )
 }
 
+function FormField({ id, label, children }: { id: string; label: string; children: ReactNode }) {
+  return (
+    <div>
+      <label className="c-label" htmlFor={id}>{label}</label>
+      {children}
+    </div>
+  )
+}
+
 export default function AuthPage({ onAuth }: Props) {
   const [signUp, setSignUp] = useState(false)
   const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
   const label = signUp ? '회원가입' : '로그인'
 
-  const [error, setError] = useState('')
+  const toggleMode = () => {
+    setSignUp(!signUp)
+    setError('')
+  }
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
     const id = userId.trim().toLowerCase()
-    if (id.length < 4 || id.length > 120) return setError('아이디는 4~120자로 입력하세요')
-    if (password.length < 8 || password.length > 200) return setError('비밀번호는 8~200자로 입력하세요')
+    if (id.length < ID_MIN || id.length > ID_MAX) return setError(`아이디는 ${ID_MIN}~${ID_MAX}자로 입력하세요`)
+    if (password.length < PW_MIN || password.length > PW_MAX) return setError(`비밀번호는 ${PW_MIN}~${PW_MAX}자로 입력하세요`)
     setError('')
     // 회원가입 성공 시 로그인 화면으로 이동 (백엔드 연동 전까지 로컬 처리)
     if (signUp) {
@@ -54,35 +73,50 @@ export default function AuthPage({ onAuth }: Props) {
     <div className="c-split">
       <Intro />
       <div className="c-side">
-      <div className="c-authcard">
-        <h1 className="c-welcome">{signUp ? 'Create an account' : 'Welcome back'}</h1>
-        <form onSubmit={submit}>
-          <div>
-            <label className="c-label" htmlFor="userId">아이디</label>
-            <input id="userId" className="c-input" type="text" autoComplete="username" placeholder="아이디를 입력하세요" required value={userId} onChange={(e) => setUserId(e.target.value)} />
-          </div>
-          <div>
-            <label className="c-label" htmlFor="password">비밀번호</label>
-            <input id="password" className="c-input" type="password" placeholder="비밀번호를 입력하세요" required value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          {!signUp && (
-            <div className="c-authrow">
-              <label className="c-check">
-                <input type="checkbox" /> 30일 동안 로그인 유지
-              </label>
-              <button type="button" className="c-link">비밀번호 찾기</button>
-            </div>
-          )}
-          {error && <p className="c-error" role="alert">{error}</p>}
-          <button type="submit" className="c-btn primary">{label}</button>
-        </form>
-        <p className="c-switch">
-          {signUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button type="button" className="c-link" onClick={() => { setSignUp(!signUp); setError('') }}>
-            {signUp ? 'Sign in' : 'Sign up'}
-          </button>
-        </p>
-      </div>
+        <div className="c-authcard">
+          <h1 className="c-welcome">{signUp ? 'Create an account' : 'Welcome back'}</h1>
+          <form onSubmit={submit}>
+            <FormField id="userId" label="아이디">
+              <input
+                id="userId"
+                className="c-input"
+                type="text"
+                autoComplete="username"
+                placeholder="아이디를 입력하세요"
+                required
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+              />
+            </FormField>
+            <FormField id="password" label="비밀번호">
+              <input
+                id="password"
+                className="c-input"
+                type="password"
+                placeholder="비밀번호를 입력하세요"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </FormField>
+            {!signUp && (
+              <div className="c-authrow">
+                <label className="c-check">
+                  <input type="checkbox" /> 30일 동안 로그인 유지
+                </label>
+                <button type="button" className="c-link">비밀번호 찾기</button>
+              </div>
+            )}
+            {error && <p className="c-error" role="alert">{error}</p>}
+            <button type="submit" className="c-btn primary">{label}</button>
+          </form>
+          <p className="c-switch">
+            {signUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            <button type="button" className="c-link" onClick={toggleMode}>
+              {signUp ? 'Sign in' : 'Sign up'}
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   )
