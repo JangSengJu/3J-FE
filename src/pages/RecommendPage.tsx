@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { KIND_LABEL, buildRecommendations, type Recommendation } from '../data/recommend'
 import type { Budget } from '../data/catalog'
+import { fetchRecommendations, streamReport } from '../api/ai'
 
 const fmt = (n: number) => `$${Math.abs(n).toFixed(2)}`
 const signed = (n: number) => (n < 0 ? `-${fmt(n)}` : fmt(n))
@@ -61,61 +64,17 @@ function RecommendationCard({ rec, index }: { rec: Recommendation; index: number
   )
 }
 
-function Report({ budget, recs, total, saving, rest }: Totals & { budget: Budget; recs: Recommendation[] }) {
-  const { resources, limit, purpose, notes } = budget
+function AiReport({ text, loading, error }: { text: string; loading: boolean; error: boolean }) {
+  if (!text && !loading && !error) return null
   return (
     <section className="d-card c-report d-report">
       <header><span>AI 보고서</span></header>
-      <h1>클라우드 아키텍처 개선 보고서</h1>
-
-      <h2>1. 요약</h2>
-      <p>
-        월 예산 한도({fmt(limit)}) 대비 현재 예상 비용은 {fmt(total)}로
-        {total > limit ? ` ${fmt(total - limit)} 초과` : ' 예산 범위 내'}입니다.
-        {purpose ? ` 사용 용도는 "${purpose}"입니다.` : ''}
-        {' '}절감 제안을 모두 적용하면 월 최대 <b>{signed(saving)}</b> 절감되어 예상 비용이 <b>{fmt(rest)}</b> 수준이 됩니다.
-      </p>
-
-      <h2>2. 비용·아키텍처 현황</h2>
-      <ul>
-        <li><p><b>월 예산 한도</b>: {fmt(limit)}</p></li>
-        <li><p><b>현재 예상 비용</b>: {fmt(total)}</p></li>
-        {resources.map((r) => (
-          <li key={r.id}>
-            <p><b>{r.name}</b>: {r.meta} · 사용률 {r.usage} · {r.need} · {fmt(r.cost)}{notes[r.name] ? ` (노트: ${notes[r.name]})` : ''}</p>
-          </li>
-        ))}
-      </ul>
-
-      <h2>3. 개선 제안</h2>
-      <div style={{ overflowX: 'auto' }}>
-        <table>
-          <thead><tr><th>제안내용</th><th>유형</th><th>대상 리소스</th><th>비용 영향 USD</th></tr></thead>
-          <tbody>
-            {recs.map((r) => (
-              <tr key={`${r.target}-${r.action}-${r.title}`}>
-                <td>{r.title}</td><td>{KIND_LABEL[r.kind]}</td><td>{targetLabel(r)}</td><td>{signed(r.savings)}</td>
-              </tr>
-            ))}
-            {recs.length === 0 && <tr><td colSpan={4}>제안 없음</td></tr>}
-          </tbody>
-        </table>
-      </div>
-
-      <h2>4. 세부 검토</h2>
-      {recs.map((r, i) => (
-        <div key={`${r.target}-${r.title}-d`}>
-          <h4>{i + 1}) [{KIND_LABEL[r.kind]}] {r.title}</h4>
-          {r.grounds.map((g) => <p className="d" key={g}><b>근거</b>: {g}</p>)}
-        </div>
-      ))}
-
-      <h2>5. 실행 계획</h2>
-      <ol>{recs.map((r) => <li key={`${r.title}-p`}>{r.title}</li>)}</ol>
-
-      <h2>6. 결론</h2>
-      <p>절감 제안을 모두 적용하면 월 최대 <b>{signed(saving)}</b> 절감되어, 예상 비용이 <b>{fmt(rest)}</b> 수준으로 낮아집니다.</p>
-      <div className="pdf"><button type="button" className="d-pill solid" onClick={() => window.print()}>PDF 내보내기</button></div>
+      {error && !text && <p className="d-desc">AI 보고서를 생성하지 못했어요. 잠시 후 다시 시도해 주세요.</p>}
+      {text && <div style={{ overflowX: 'auto' }}><Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown></div>}
+      {loading && <p className="d-note">생성 중…</p>}
+      {text && !loading && (
+        <div className="pdf"><button type="button" className="d-pill solid" onClick={() => window.print()}>PDF 내보내기</button></div>
+      )}
     </section>
   )
 }
@@ -123,12 +82,45 @@ function Report({ budget, recs, total, saving, rest }: Totals & { budget: Budget
 export default function RecommendPage({ budget }: { budget: Budget }) {
   const { resources, limit } = budget
   const [recs, setRecs] = useState<Recommendation[] | null>(null)
+  const [fallback, setFallback] = useState(false)
+  const [running, setRunning] = useState(false)
+  const [error, setError] = useState('')
+  const [reportText, setReportText] = useState('')
+  const [reportLoading, setReportLoading] = useState(false)
+  const [reportError, setReportError] = useState(false)
 
   const total = round2(resources.reduce((s, r) => s + r.cost, 0))
   const saving = recs ? recs.reduce((s, r) => s + r.savings, 0) : 0
   const rest = Math.max(0, round2(total - saving))
 
-  const run = () => setRecs(buildRecommendations(resources))
+  const run = async () => {
+    setRunning(true)
+    setError('')
+    setReportText('')
+    setReportError(false)
+    let result: Recommendation[]
+    try {
+      const res = await fetchRecommendations(budget)
+      result = res.recommendations
+      setFallback(res.fallback)
+    } catch (e) {
+      // 서버 호출 실패 시 로컬 규칙 기반 추천으로 대체
+      result = buildRecommendations(resources)
+      setFallback(true)
+      setError(e instanceof Error ? e.message : '')
+    }
+    setRecs(result)
+    setRunning(false)
+
+    setReportLoading(true)
+    try {
+      await streamReport(budget, result, setReportText)
+    } catch {
+      setReportError(true)
+    } finally {
+      setReportLoading(false)
+    }
+  }
 
   return (
     <div className="d-wrap">
@@ -136,8 +128,8 @@ export default function RecommendPage({ budget }: { budget: Budget }) {
         <h1>절감 추천 <span>Savings</span></h1>
         <div className="d-inline">
           {recs && <span className="d-pill">· 완료 ({recs.length}건)</span>}
-          <button type="button" className="d-pill solid" onClick={run} disabled={resources.length === 0}>
-            AI 분석 실행
+          <button type="button" className="d-pill solid" onClick={run} disabled={resources.length === 0 || running || reportLoading}>
+            {running ? '분석 중…' : 'AI 분석 실행'}
           </button>
         </div>
       </div>
@@ -152,7 +144,7 @@ export default function RecommendPage({ budget }: { budget: Budget }) {
 
       {recs && (
         <>
-          <p className="d-note d-fallback">AI 연동 전이라 규칙 기반 폴백 결과로 표시하고 있어요.</p>
+          {fallback && <p className="d-note d-fallback">AI 분석을 사용할 수 없어 규칙 기반 폴백 결과로 표시하고 있어요.{error && ` (${error})`}</p>}
           <SummaryCards recs={recs} limit={limit} total={total} saving={saving} rest={rest} />
 
           {recs.length === 0 ? (
@@ -167,7 +159,7 @@ export default function RecommendPage({ budget }: { budget: Budget }) {
             </div>
           )}
 
-          <Report budget={budget} recs={recs} total={total} saving={saving} rest={rest} />
+          <AiReport text={reportText} loading={reportLoading} error={reportError} />
         </>
       )}
     </div>

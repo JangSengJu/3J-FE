@@ -270,6 +270,7 @@ button { font-family: inherit; }
 .d-field .d-input{flex:none;width:100%;box-sizing:border-box}
 .d-actions{justify-content:flex-end}
 .d-error,.c-error{margin:0;font-size:13px;font-weight:600;color:#b3261e}
+.c-notice{margin:0;font-size:13px;font-weight:600;color:#1b7f4b}
 .d-alert{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;padding:16px 24px;border-radius:20px;background:#fbeae8;color:#8c1d18;font-size:14px}
 .d-alert .d-pill{margin-left:auto}
 .d-hero.over{background:#8c1d18}
