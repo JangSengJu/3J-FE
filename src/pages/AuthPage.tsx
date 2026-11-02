@@ -1,4 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { signIn, signUp as apiSignUp } from '../api/auth'
 
 interface Props {
   onAuth: (userId: string) => void
@@ -46,27 +47,41 @@ export default function AuthPage({ onAuth }: Props) {
   const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [notice, setNotice] = useState('')
 
   const label = signUp ? '회원가입' : '로그인'
 
   const toggleMode = () => {
     setSignUp(!signUp)
     setError('')
+    setNotice('')
   }
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
     const id = userId.trim().toLowerCase()
     if (id.length < ID_MIN || id.length > ID_MAX) return setError(`아이디는 ${ID_MIN}~${ID_MAX}자로 입력하세요`)
     if (password.length < PW_MIN || password.length > PW_MAX) return setError(`비밀번호는 ${PW_MIN}~${PW_MAX}자로 입력하세요`)
     setError('')
-    // 회원가입 성공 시 로그인 화면으로 이동 (백엔드 연동 전까지 로컬 처리)
-    if (signUp) {
-      setSignUp(false)
-      setPassword('')
-      return
+    setNotice('')
+    setBusy(true)
+    try {
+      if (signUp) {
+        // 회원가입 성공 시 로그인 화면으로 이동
+        await apiSignUp(id, password)
+        setSignUp(false)
+        setPassword('')
+        setNotice('회원가입이 완료됐어요. 로그인해 주세요.')
+      } else {
+        const user = await signIn(id, password)
+        onAuth(user.id)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `${label}에 실패했어요`)
+    } finally {
+      setBusy(false)
     }
-    onAuth(id)
   }
 
   return (
@@ -107,8 +122,9 @@ export default function AuthPage({ onAuth }: Props) {
                 <button type="button" className="c-link">비밀번호 찾기</button>
               </div>
             )}
+            {notice && <p className="c-notice" role="status">{notice}</p>}
             {error && <p className="c-error" role="alert">{error}</p>}
-            <button type="submit" className="c-btn primary">{label}</button>
+            <button type="submit" className="c-btn primary" disabled={busy}>{busy ? '처리 중…' : label}</button>
           </form>
           <p className="c-switch">
             {signUp ? 'Already have an account?' : "Don't have an account?"}{' '}
